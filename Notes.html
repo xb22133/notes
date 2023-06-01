@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>笔记</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #noteContainer {
+            width: 100%;
+            height: 100vh;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        #noteContent {
+            width: 100%;
+            height: 100%;
+            font-size: 16px;
+            background-color: #fff;
+            border: none;
+        }
+        .noteImage {
+            max-width: 100%;
+            max-height: 400px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="noteContainer" contenteditable="true">
+        <div id="noteContent" placeholder="在这里输入你的笔记..."></div>
+    </div>
+    
+    <script>
+        // 保存笔记到本地存储
+        function saveNote() {
+            var note = document.getElementById("noteContent").innerHTML;
+            localStorage.setItem("note", note);
+        }
+        
+        // 从本地存储加载之前保存的笔记
+        function loadNote() {
+            var note = localStorage.getItem("note");
+            if (note) {
+                document.getElementById("noteContent").innerHTML = note;
+            }
+        }
+        
+        // 监听粘贴事件
+        document.addEventListener("paste", function(event) {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                    var file = items[i].getAsFile();
+                    var reader = new FileReader();
+                    reader.onload = function(event) {
+                        var img = document.createElement("img");
+                        img.src = event.target.result;
+                        img.classList.add("noteImage");
+                        document.getElementById("noteContent").appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+        
+        // 页面加载时加载之前保存的笔记
+        window.onload = function() {
+            loadNote();
+        };
+        
+        // 在页面关闭或刷新时保存笔记
+        window.onbeforeunload = function() {
+            saveNote();
+        };
+    </script>
+</body>
+</html>
